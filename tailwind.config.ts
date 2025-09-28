@@ -22,6 +22,7 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          glow: "hsl(var(--primary-glow))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -46,6 +47,10 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -80,10 +85,50 @@ export default {
             height: "0",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0px)"
+          },
+          "50%": {
+            transform: "translateY(-10px)"
+          }
+        },
+        "glow": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px hsl(var(--primary) / 0.3)"
+          },
+          "50%": {
+            boxShadow: "0 0 30px hsl(var(--primary) / 0.6)"
+          }
+        },
+        "slideUp": {
+          from: {
+            opacity: "0",
+            transform: "translateY(30px)"
+          },
+          to: {
+            opacity: "1", 
+            transform: "translateY(0)"
+          }
+        },
+        "fadeInUp": {
+          from: {
+            opacity: "0",
+            transform: "translateY(20px)"
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)"
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
+        "glow": "glow 2s ease-in-out infinite alternate",
+        "slide-up": "slideUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+        "fade-in-up": "fadeInUp 0.6s ease-out forwards",
       },
     },
   },
