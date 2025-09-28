@@ -23,10 +23,10 @@ const getDifficultyColor = (difficulty: number) => {
 };
 
 const getDifficultyText = (difficulty: number) => {
-  if (difficulty <= 2) return 'Легкий';
-  if (difficulty <= 4) return 'Средний';
-  if (difficulty <= 6) return 'Сложный';
-  return 'Очень сложный';
+  if (difficulty <= 2) return 'Жеңил';
+  if (difficulty <= 4) return 'Орточо';
+  if (difficulty <= 6) return 'Кыйын';
+  return 'Өтө кыйын';
 };
 
 const TaskCard = ({ task, index }: TaskCardProps) => {
@@ -43,13 +43,13 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
             <span className="text-white font-semibold text-sm">{task.id}</span>
           </div>
           <Badge className={`${getDifficultyColor(task.difficulty)} border`}>
-            {getDifficultyText(task.difficulty)} • Уровень {task.difficulty}
+            {getDifficultyText(task.difficulty)} • Деңгээл {task.difficulty}
           </Badge>
         </div>
       </div>
 
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-foreground mb-2">Задача:</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">Маселе:</h3>
         <div className="bg-muted/50 rounded-lg p-4 border">
           <code className="text-lg font-mono text-primary">{task.problem}</code>
         </div>
@@ -65,12 +65,12 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
               : 'gradient-primary hover:shadow-glow text-white'
           }`}
         >
-          {showAnswer ? 'Скрыть ответ' : 'Показать ответ'}
+          {showAnswer ? 'Жоопту жашыруу' : 'Жоопту көрсөтүү'}
         </Button>
 
         {showAnswer && (
           <div className="animate-slide-up">
-            <h4 className="text-md font-semibold text-success mb-2">Ответ:</h4>
+            <h4 className="text-md font-semibold text-success mb-2">Жооп:</h4>
             <div className="bg-success/10 rounded-lg p-4 border border-success/20">
               <code className="text-lg font-mono text-success font-semibold">{task.answer}</code>
             </div>

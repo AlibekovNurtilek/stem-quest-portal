@@ -6,7 +6,7 @@ import tasksData from '@/data/tasks.json';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<string>('all');
+  const [activeSection, setActiveSection] = useState<string>('linear_equations');
 
   const handleLoadingComplete = () => {
     setIsLoading(false);
@@ -15,22 +15,22 @@ const Index = () => {
   const sections = [
     {
       id: 'linear_equations',
-      title: 'Линейные уравнения',
+      title: 'Сызыктуу теңдемелер',
       tasks: tasksData.math_tasks.linear_equations
     },
     {
       id: 'fraction_simplification', 
-      title: 'Упрощение дробей',
+      title: 'Бөлчөктөрдү жөнөкөйлөштүрүү',
       tasks: tasksData.math_tasks.fraction_simplification
     },
     {
       id: 'brackets_operations',
-      title: 'Операции со скобками', 
+      title: 'Кашалар менен операциялар', 
       tasks: tasksData.math_tasks.brackets_operations
     },
     {
       id: 'logarithms',
-      title: 'Логарифмы',
+      title: 'Логарифмдер',
       tasks: tasksData.math_tasks.logarithms
     }
   ];
@@ -57,18 +57,18 @@ const Index = () => {
                   STEM Математика
                 </h1>
                 <p className="text-xl opacity-90">
-                  Тесты для учеников программы STEM
+                  STEM программасынын окуучулары үчүн тесттер
                 </p>
               </div>
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-2xl mx-auto">
               <p className="text-lg mb-2">
-                <strong>Учитель:</strong> Алибеков Нуртилек
+                <strong>Мугалим:</strong> Алибеков Нүртилек
               </p>
               <p className="text-white/90">
-                Всего задач: <span className="font-semibold">{totalTasks}</span> • 
-                Удачи на экзаменах! 🌟
+                Жалпы тапшырмалар: <span className="font-semibold">{totalTasks}</span> • 
+                Экзамендерде ийгилик! 🌟
               </p>
             </div>
           </div>
@@ -79,13 +79,6 @@ const Index = () => {
       <nav className="bg-card shadow-soft sticky top-0 z-40 border-b">
         <div className="container mx-auto px-6 py-4">
           <div className="flex flex-wrap gap-2 justify-center">
-            <Button
-              variant={activeSection === 'all' ? 'default' : 'outline'}
-              onClick={() => setActiveSection('all')}
-              className={activeSection === 'all' ? 'gradient-primary text-white' : ''}
-            >
-              Все разделы
-            </Button>
             {sections.map((section) => (
               <Button
                 key={section.id}
@@ -102,29 +95,12 @@ const Index = () => {
 
       {/* Content */}
       <main className="container mx-auto px-6 py-12">
-        {activeSection === 'all' ? (
-          <div className="space-y-16">
-            {sections.map((section, index) => (
-              <div 
-                key={section.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <TaskSection
-                  title={section.title}
-                  tasks={section.tasks}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="animate-fade-in-up">
-            <TaskSection
-              title={sections.find(s => s.id === activeSection)?.title || ''}
-              tasks={sections.find(s => s.id === activeSection)?.tasks || []}
-            />
-          </div>
-        )}
+        <div className="animate-fade-in-up">
+          <TaskSection
+            title={sections.find(s => s.id === activeSection)?.title || ''}
+            tasks={sections.find(s => s.id === activeSection)?.tasks || []}
+          />
+        </div>
       </main>
 
       {/* Footer */}
@@ -133,11 +109,11 @@ const Index = () => {
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="text-2xl animate-float">🎯</span>
             <p className="text-muted-foreground">
-              Математические задачи для программы STEM
+              STEM программасы үчүн математикалык маселелер
             </p>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2024 Алибеков Нуртилек • Успехов в изучении математики!
+            © 2024 Алибеков Нүртилек • Математиканы үйрөнүүдө ийгилик!
           </p>
         </div>
       </footer>

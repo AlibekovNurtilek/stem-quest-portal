@@ -45,7 +45,7 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
                 STEM Математика
               </h1>
               <p className="text-xl text-white/90 mb-8">
-                Загрузка задач...
+                Тапшырмалар жүктөлүүдө...
               </p>
             </div>
             
@@ -62,13 +62,13 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
         ) : (
           <div className="animate-fade-in-up">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Добро пожаловать!
+              Кош келдиңиздер!
             </h2>
             <p className="text-xl text-white/90 mb-4">
-              Учитель: <span className="font-semibold">Алибеков Нуртилек</span>
+              Мугалим: <span className="font-semibold">Алибеков Нүртилек</span>
             </p>
             <p className="text-lg text-white/80">
-              Желаю удачи всем ученикам программы STEM! 🌟
+              STEM программасынын бардык окуучуларына ийгилик каалайм! 🌟
             </p>
           </div>
         )}

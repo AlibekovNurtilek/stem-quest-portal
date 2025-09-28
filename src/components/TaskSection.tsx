@@ -41,10 +41,10 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
   };
 
   const getSectionIcon = (title: string) => {
-    if (title.includes('Линейные')) return '📐';
-    if (title.includes('дроби')) return '🔢';
-    if (title.includes('Скобки')) return '📊';
-    if (title.includes('Логарифмы')) return '📈';
+    if (title.includes('Сызыктуу') || title.includes('теңдемелер')) return '📐';
+    if (title.includes('Бөлчөктөрдү') || title.includes('жөнөкөйлөштүрүү')) return '🔢';
+    if (title.includes('Кашалар') || title.includes('операциялар')) return '📊';
+    if (title.includes('Логарифмдер')) return '📈';
     return '📚';
   };
 
@@ -58,33 +58,33 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
           </h2>
         </div>
         <p className="text-muted-foreground">
-          Всего задач: {tasks.length} | Отфильтровано: {filteredTasks.length}
+          Жалпы тапшырмалар: {tasks.length} | Фильтрленген: {filteredTasks.length}
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-8 items-center justify-between">
         <Select value={difficultyFilter} onValueChange={handleFilterChange}>
           <SelectTrigger className="w-full sm:w-64">
-            <SelectValue placeholder="Фильтр по уровню сложности" />
+            <SelectValue placeholder="Кыйынчылык деңгээли боюнча фильтр" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Все уровни</SelectItem>
-            <SelectItem value="1">Уровень 1-2 (Легкий)</SelectItem>
-            <SelectItem value="3">Уровень 3-4 (Средний)</SelectItem>
-            <SelectItem value="5">Уровень 5-6 (Сложный)</SelectItem>
-            <SelectItem value="7">Уровень 7+ (Очень сложный)</SelectItem>
+            <SelectItem value="all">Бардык деңгээлдер</SelectItem>
+            <SelectItem value="1">Деңгээл 1-2 (Жеңил)</SelectItem>
+            <SelectItem value="3">Деңгээл 3-4 (Орточо)</SelectItem>
+            <SelectItem value="5">Деңгээл 5-6 (Кыйын)</SelectItem>
+            <SelectItem value="7">Деңгээл 7+ (Өтө кыйын)</SelectItem>
           </SelectContent>
         </Select>
 
         <div className="text-sm text-muted-foreground">
-          Страница {currentPage} из {totalPages}
+          Барак {currentPage} / {totalPages}
         </div>
       </div>
 
       {currentTasks.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg">
-            Нет задач для выбранного уровня сложности
+            Тандалган кыйынчылык деңгээли үчүн тапшырмалар жок
           </p>
         </div>
       ) : (
@@ -107,7 +107,7 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
                 disabled={currentPage === 1}
                 className="min-w-20"
               >
-                Назад
+                Артка
               </Button>
               
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -131,7 +131,7 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
                 disabled={currentPage === totalPages}
                 className="min-w-20"
               >
-                Вперед
+                Алдыга
               </Button>
             </div>
           )}
