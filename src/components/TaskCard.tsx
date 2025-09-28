@@ -18,7 +18,10 @@ interface TaskCardProps {
 // Компонент для отображения дроби
 const Fraction = ({ numerator, denominator }: { numerator: string; denominator: string }) => {
   return (
-    <span className="inline-flex flex-col items-center mx-1 align-middle" style={{ verticalAlign: 'middle' }}>
+    <span
+      className="inline-flex flex-col items-center mx-1 align-middle"
+      style={{ verticalAlign: 'middle' }}
+    >
       <span className="text-sm leading-none border-b border-current pb-0.5 min-w-[1em] text-center">
         {numerator}
       </span>
@@ -29,67 +32,185 @@ const Fraction = ({ numerator, denominator }: { numerator: string; denominator: 
   );
 };
 
+// Функция для разделения текста задачи и математического выражения
+const parseTaskProblem = (problem: string) => {
+  if (!problem || !problem.trim()) {
+    return { taskText: '', mathExpression: '' };
+  }
+
+  // Ищем двоеточие как разделитель
+  const colonIndex = problem.indexOf(':');
+  
+  if (colonIndex !== -1) {
+    const taskText = problem.substring(0, colonIndex + 1).trim();
+    const mathExpression = problem.substring(colonIndex + 1).trim();
+    return { taskText, mathExpression };
+  }
+  
+  // Если двоеточия нет, всё считаем математическим выражением
+  return { taskText: '', mathExpression: problem.trim() };
+};
+
+// Функция для поиска сбалансированного выражения в скобках
+const findMatchingParentheses = (str: string, startIndex: number): number => {
+  let count = 0;
+  for (let i = startIndex; i < str.length; i++) {
+    if (str[i] === '(') count++;
+    if (str[i] === ')') count--;
+    if (count === 0) return i;
+  }
+  return -1;
+};
+
 // Функция для парсинга и форматирования математических выражений
 const formatMathExpression = (expression: string) => {
-  // Улучшенное регулярное выражение:
-  // Ищем дроби, но останавливаемся перед скобками, если они идут сразу после знаменателя
-  const fractionRegex = /([a-zA-Z0-9\+\-\*\^\s]*(?:\([^)]*\))*[a-zA-Z0-9\+\-\*\^\s]*)\/([a-zA-Z0-9\+\-\*\^\s]+)(?![a-zA-Z0-9\(])|([a-zA-Z0-9\+\-\*\^\s]*(?:\([^)]*\))*[a-zA-Z0-9\+\-\*\^\s]*)\/(\([^)]*\))(?=\s|$|[+\-=])/g;
+  let processedExpression = expression;
+  const fractions: { placeholder: string; numerator: string; denominator: string }[] = [];
+  let fractionCounter = 0;
+
+  // Функция для создания уникального плейсхолдера
+  const createPlaceholder = (num: string, den: string): string => {
+    const placeholder = `__FRACTION_${fractionCounter++}__`;
+    fractions.push({ placeholder, numerator: num, denominator: den });
+    return placeholder;
+  };
+
+  // Этап 1: Находим все дроби, используя более точный алгоритм
+  let i = 0;
+  let result = '';
   
-  const parts = [];
-  let lastIndex = 0;
-  let match;
-
-  // Сначала обработаем простые случаи - числовые дроби перед скобками
-  let processedExpression = expression.replace(/(\d+)\/(\d+)(?=\()/g, (match, num, den) => {
-    return `[FRACTION:${num}|${den}]`;
-  });
-
-  // Затем обработаем остальные дроби
-  processedExpression = processedExpression.replace(/([^\/\s\+\-\*=]+(?:\([^)]*\))?[^\/\s\+\-\*=]*|[^\/\s\+\-\*=]*\([^)]*\)[^\/\s\+\-\*=]*|[a-zA-Z0-9]+)\/([^\/\s\+\-\*=]+(?:\([^)]*\))?[^\/\s\+\-\*=]*|[^\/\s\+\-\*=]*\([^)]*\)[^\/\s\+\-\*=]*|[a-zA-Z0-9]+)(?=\s|$|[+\-=])/g, (match, num, den) => {
-    return `[FRACTION:${num}|${den}]`;
-  });
-
-  // Теперь разбираем строку и заменяем маркеры на компоненты
-  const tokens = processedExpression.split(/(\[FRACTION:[^\]]+\])/);
-  
-  tokens.forEach((token, index) => {
-    if (token.startsWith('[FRACTION:')) {
-      // Это дробь
-      const content = token.slice(10, -1); // Убираем [FRACTION: и ]
-      const [numerator, denominator] = content.split('|');
+  while (i < processedExpression.length) {
+    const char = processedExpression[i];
+    
+    // Ищем символ '/'
+    if (char === '/') {
+      // Найдем начало числителя (движемся назад)
+      let numStart = i - 1;
+      let numEnd = i - 1;
       
-      let cleanNumerator = numerator.trim();
-      let cleanDenominator = denominator.trim();
+      // Если перед '/' есть ')', найдем соответствующую '('
+      if (processedExpression[numEnd] === ')') {
+        let parenCount = 1;
+        numStart = numEnd - 1;
+        while (numStart >= 0 && parenCount > 0) {
+          if (processedExpression[numStart] === ')') parenCount++;
+          if (processedExpression[numStart] === '(') parenCount--;
+          if (parenCount > 0) numStart--;
+        }
+      } else {
+        // Найдем начало числителя (буквы, цифры, пробелы)
+        while (numStart >= 0 && /[a-zA-Z0-9\s]/.test(processedExpression[numStart])) {
+          numStart--;
+        }
+        numStart++;
+      }
       
-      // Убираем внешние скобки только если они охватывают всё выражение
-      if (cleanNumerator.startsWith('(') && cleanNumerator.endsWith(')') && isBalancedParentheses(cleanNumerator)) {
-        cleanNumerator = cleanNumerator.slice(1, -1);
+      // Найдем конец знаменателя (движемся вперед)
+      let denStart = i + 1;
+      let denEnd = denStart;
+      
+      // Если после '/' есть '(', найдем соответствующую ')'
+      if (processedExpression[denStart] === '(') {
+        denEnd = findMatchingParentheses(processedExpression, denStart);
+        if (denEnd === -1) denEnd = denStart;
+      } else {
+        // Найдем конец знаменателя (буквы, цифры, пробелы)
+        while (denEnd < processedExpression.length && /[a-zA-Z0-9\s]/.test(processedExpression[denEnd])) {
+          denEnd++;
+        }
+        denEnd--;
       }
-      if (cleanDenominator.startsWith('(') && cleanDenominator.endsWith(')') && isBalancedParentheses(cleanDenominator)) {
-        cleanDenominator = cleanDenominator.slice(1, -1);
+      
+      // Извлекаем числитель и знаменатель
+      const numerator = processedExpression.substring(numStart, numEnd + 1).trim();
+      const denominator = processedExpression.substring(denStart, denEnd + 1).trim();
+      
+      // Проверяем, что у нас есть и числитель, и знаменатель
+      if (numerator && denominator) {
+        // Добавляем часть до дроби
+        result += processedExpression.substring(0, numStart);
+        
+        // Создаем плейсхолдер для дроби
+        const placeholder = createPlaceholder(numerator, denominator);
+        result += placeholder;
+        
+        // Продолжаем с остатком строки
+        processedExpression = processedExpression.substring(denEnd + 1);
+        i = 0;
+        continue;
       }
-
-      parts.push(
-        <Fraction
-          key={`fraction-${index}`}
-          numerator={cleanNumerator}
-          denominator={cleanDenominator}
-        />
-      );
-    } else if (token.trim()) {
-      // Это обычный текст
-      parts.push(
-        <span key={`text-${index}`}>
-          {token}
-        </span>
-      );
     }
-  });
+    
+    i++;
+  }
+  
+  // Добавляем оставшуюся часть
+  result += processedExpression;
+  processedExpression = result;
+
+  // Этап 2: Заменяем плейсхолдеры на компоненты React
+  const parts = [];
+  let currentIndex = 0;
+  
+  // Сортируем дроби по порядку появления в строке
+  const sortedFractions = fractions.sort((a, b) => 
+    processedExpression.indexOf(a.placeholder) - processedExpression.indexOf(b.placeholder)
+  );
+  
+  for (const fraction of sortedFractions) {
+    const placeholderIndex = processedExpression.indexOf(fraction.placeholder, currentIndex);
+    
+    if (placeholderIndex > currentIndex) {
+      // Добавляем текст перед дробью
+      const textBefore = processedExpression.substring(currentIndex, placeholderIndex);
+      if (textBefore) {
+        parts.push(<span key={`text-${parts.length}`}>{textBefore}</span>);
+      }
+    }
+    
+    // Очищаем числитель и знаменатель от лишних скобок
+    let cleanNumerator = fraction.numerator;
+    let cleanDenominator = fraction.denominator;
+    
+    if (
+      cleanNumerator.startsWith('(') &&
+      cleanNumerator.endsWith(')') &&
+      isBalancedParentheses(cleanNumerator)
+    ) {
+      cleanNumerator = cleanNumerator.slice(1, -1);
+    }
+    if (
+      cleanDenominator.startsWith('(') &&
+      cleanDenominator.endsWith(')') &&
+      isBalancedParentheses(cleanDenominator)
+    ) {
+      cleanDenominator = cleanDenominator.slice(1, -1);
+    }
+    
+    // Добавляем компонент дроби
+    parts.push(
+      <Fraction
+        key={`fraction-${parts.length}`}
+        numerator={cleanNumerator}
+        denominator={cleanDenominator}
+      />
+    );
+    
+    currentIndex = placeholderIndex + fraction.placeholder.length;
+  }
+  
+  // Добавляем оставшийся текст
+  if (currentIndex < processedExpression.length) {
+    const remainingText = processedExpression.substring(currentIndex);
+    if (remainingText) {
+      parts.push(<span key={`text-${parts.length}`}>{remainingText}</span>);
+    }
+  }
 
   return parts.length > 0 ? parts : [<span key="original">{expression}</span>];
 };
 
-// Вспомогательная функция для проверки сбалансированности скобок
+// Проверка сбалансированности скобок
 const isBalancedParentheses = (str: string): boolean => {
   let count = 0;
   for (let i = 0; i < str.length; i++) {
@@ -116,10 +237,13 @@ const getDifficultyText = (difficulty: number) => {
 
 const TaskCard = ({ task, index }: TaskCardProps) => {
   const [showAnswer, setShowAnswer] = useState(false);
+  
+  // Разбираем задачу на текст и математическое выражение
+  const { taskText, mathExpression } = parseTaskProblem(task.problem);
 
   return (
     <>
-      <Card 
+      <Card
         className="p-6 hover:shadow-card transition-smooth gradient-card border-0 animate-fade-in-up"
         style={{ animationDelay: `${index * 0.1}s` }}
       >
@@ -133,16 +257,18 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
             </Badge>
           </div>
         </div>
-        
+
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-foreground mb-2">Маселе:</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            {taskText || 'Маселе:'}
+          </h3>
           <div className="bg-muted/50 rounded-lg p-4 border">
             <div className="text-lg font-mono text-primary">
-              {formatMathExpression(task.problem)}
+              {mathExpression ? formatMathExpression(mathExpression) : 'Маселе'}
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-4">
           {/* <Button 
             variant={showAnswer ? "secondary" : "default"}
@@ -155,7 +281,7 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
           >
             {showAnswer ? 'Жоопту жашыруу' : 'Жоопту көрсөтүү'}
           </Button> */}
-          
+
           {showAnswer && (
             <div className="animate-slide-up">
               <h4 className="text-md font-semibold text-success mb-2">Жооп:</h4>
@@ -168,7 +294,7 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
           )}
         </div>
       </Card>
-      
+
       <style>{`
         @keyframes fadeInUp {
           from {
@@ -180,7 +306,7 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
             transform: translateY(0);
           }
         }
-        
+
         @keyframes slideUp {
           from {
             opacity: 0;
@@ -191,11 +317,11 @@ const TaskCard = ({ task, index }: TaskCardProps) => {
             transform: translateY(0);
           }
         }
-        
+
         .animate-fade-in-up {
           animation: fadeInUp 0.5s ease-out forwards;
         }
-        
+
         .animate-slide-up {
           animation: slideUp 0.3s ease-out;
         }

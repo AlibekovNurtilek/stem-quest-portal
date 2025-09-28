@@ -99,6 +99,7 @@ const Index = () => {
       <main className="container mx-auto px-6 py-12">
         <div className="animate-fade-in-up">
           <TaskSection
+            key={activeSection} // Добавлен key для сброса состояния
             title={sections.find(s => s.id === activeSection)?.title || ''}
             tasks={sections.find(s => s.id === activeSection)?.tasks || []}
           />
