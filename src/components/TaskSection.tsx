@@ -15,7 +15,7 @@ interface TaskSectionProps {
   tasks: Task[];
 }
 
-const TASKS_PER_PAGE = 6;
+const TASKS_PER_PAGE = 10;
 
 const TaskSection = ({ title, tasks }: TaskSectionProps) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,8 +52,7 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
     <section className="mb-12">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-3 mb-4">
-          <span className="text-4xl animate-float">{getSectionIcon(title)}</span>
-          <h2 className="text-3xl font-bold gradient-primary bg-clip-text text-transparent">
+          <h2 className="text-lg md:text-2xl font-bold flex items-center gap-3">
             {title}
           </h2>
         </div>
@@ -89,13 +88,15 @@ const TaskSection = ({ title, tasks }: TaskSectionProps) => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Fixed grid layout for consistent card widths */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 auto-rows-fr">
             {currentTasks.map((task, index) => (
-              <TaskCard 
-                key={task.id} 
-                task={task} 
-                index={index}
-              />
+              <div key={task.id} className="w-full">
+                <TaskCard 
+                  task={task} 
+                  index={index}
+                />
+              </div>
             ))}
           </div>
 

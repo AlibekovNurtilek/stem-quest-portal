@@ -68,7 +68,7 @@ const Index = () => {
               </p>
               <p className="text-white/90">
                 Жалпы тапшырмалар: <span className="font-semibold">{totalTasks}</span> • 
-                Экзамендерде ийгилик! 🌟
+                Аткарууда ийгилик! 🌟
               </p>
             </div>
           </div>
@@ -84,7 +84,9 @@ const Index = () => {
                 key={section.id}
                 variant={activeSection === section.id ? 'default' : 'outline'}
                 onClick={() => setActiveSection(section.id)}
-                className={activeSection === section.id ? 'gradient-primary text-white' : ''}
+                className={`w-full sm:w-[20%] rounded-lg ${
+                  activeSection === section.id ? 'gradient-primary text-white' : ''
+                }`}
               >
                 {section.title} ({section.tasks.length})
               </Button>
